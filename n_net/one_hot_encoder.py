@@ -6,6 +6,7 @@ import time
 from sklearn import preprocessing
 from n_net.nnCostFunction import nnCostFunction
 from n_net.predict import predict
+from sklearn.metrics import accuracy_score
 
 
 def is_classification(metadata, feature):
@@ -62,15 +63,19 @@ if __name__ == '__main__':
     min_max_scaler = preprocessing.MinMaxScaler()
     train_df = min_max_scaler.fit_transform(train_df.values)
 
-    J = 0
-    for x in xrange(500):
-        new_train_df = train_df[x:x + 1]
+    min_max_scaler = preprocessing.MinMaxScaler()
+    test_df = min_max_scaler.fit_transform(test_df.values)
 
+
+    J = 0
+    for x in xrange(100000):
+        new_train_df = train_df
         # print("Error Before =" + str(J))
-        [J, Theta1_grad, Theta2_grad] = nnCostFunction(Theta1, Theta2, 1, new_train_df, train_y.values[x])
-        Theta1 = Theta1_grad
-        Theta2 = Theta2_grad
-        # print("Error After =" + str(J))
+        [J, Theta1_grad, Theta2_grad] = nnCostFunction(Theta1, Theta2, 1, new_train_df, train_y.values)
+        Theta1 -= Theta1_grad
+        Theta2 -= Theta2_grad
+        print("Error After =" + str(J))
         # print(str(predict(Theta1, Theta2, train_df)))
-        #
+
+    print(accuracy_score(predict(Theta1, Theta2, test_df), test_y.values))
     print("Hello")

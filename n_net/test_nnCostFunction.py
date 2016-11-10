@@ -26,23 +26,26 @@ class TestNnCostFunction(TestCase):
                       [0.1301, -0.0808],
                       [-0.0576, 0.1103]])
 
-        y = np.array([1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+        y = np.array([[1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0]])
 
         Theta1 = np.array([[0.8415, 0.4121, -0.9614],
-                  [0.1411, -1.0000, 0.1499],
-                  [-0.9589, 0.4202, 0.8367],
-                  [0.6570, 0.6503, -0.8462]])
+                           [0.1411, -1.0000, 0.1499],
+                           [-0.9589, 0.4202, 0.8367],
+                           [0.6570, 0.6503, -0.8462]])
 
-        Theta2 = np.array([[0.5403, -0.9111, -0.2752, 0.9912, -0.0133]])
+        Theta2 = np.array([[0.5403   ,-0.9900,   0.2837,    0.7539,   -0.9111]])
 
         num_labels = 1
 
-        for x in xrange(50):
-            [J, Theta1_grad, Theta2_grad] = nnCostFunction(Theta1, Theta2, num_labels, X, y)
+        [J, Theta1_grad, Theta2_grad] = nnCostFunction(Theta1, Theta2, num_labels, X, y)
+        score = predict(Theta1, Theta2, X)
+        print(score)
+        print(J)
+        # for x in xrange(50):
+        #
+        #     Theta1 = np.subtract(Theta1, Theta1_grad)
+        #     Theta2 = np.subtract(Theta2, Theta2_grad)
+        #     print("Error =" + str(J))
 
-            Theta1 = np.subtract(Theta1, Theta1_grad)
-            Theta2 = np.subtract(Theta2, Theta2_grad)
-            print("Error =" + str(J))
-
-        # score = predict(Theta1, Theta2, X)
-        # print("Hello World")
+            # score = predict(Theta1, Theta2, X)
+            # print("Hello World")
