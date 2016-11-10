@@ -1,4 +1,5 @@
 import numpy as np
+from sklearn import preprocessing
 
 from n_net.sigmoid import sigmoid
 
@@ -25,23 +26,22 @@ def nnCostFunction(Theta1, Theta2, num_labels, X, y):
     z3 = np.dot(Theta2, a2)
     a3 = sigmoid(z3)
 
-    Y = vectorize_y(y, num_labels)
-    Y = Y.transpose()
+    Y = y
 
     term1 = sum(np.multiply(-Y, np.log(a3)))
     term2 = sum(np.multiply((1 - Y), np.log(1 - a3)))
 
-    J = sum(term1 - term2)
+    J = sum(term1 - term2)/m
 
     delta3 = a3 - Y
     activation = np.multiply(a2, (1 - a2))
     temp = np.dot(Theta2.transpose(), delta3)
     delta2 = np.multiply(temp, activation)
 
-    Theta2_grad = (Theta2_grad + np.dot(delta3, a2.transpose()))
+    Theta2_grad = (Theta2_grad + np.dot(delta3, a2.transpose()))/m
 
     temp = np.dot(delta2, X)
-    temp = np.delete(temp, 1, 0)
+    temp = np.delete(temp, 0, 0)
 
-    Theta1_grad = (Theta1_grad + temp)
+    Theta1_grad = (Theta1_grad + temp)/m
     return J, Theta1_grad, Theta2_grad
