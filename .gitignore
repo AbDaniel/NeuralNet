@@ -32,8 +32,6 @@ var/
 *.manifest
 *.spec
 *.xml
-.idea/misc.xml
-.idea/workspace.xml
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
