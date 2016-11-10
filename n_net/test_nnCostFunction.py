@@ -37,7 +37,7 @@ class TestNnCostFunction(TestCase):
 
         num_labels = 1
 
-        [J, Theta1_grad, Theta2_grad] = nnCostFunction(Theta1, Theta2, num_labels, X, y)
+        [J, Theta1_grad, Theta2_grad] = nnCostFunction(Theta1, Theta2, X, y)
         score = predict(Theta1, Theta2, X)
         print(score)
         print(J)

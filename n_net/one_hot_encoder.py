@@ -7,6 +7,7 @@ from sklearn import preprocessing
 from n_net.nnCostFunction import nnCostFunction
 from n_net.predict import predict
 from sklearn.metrics import accuracy_score
+from sklearn.utils import shuffle
 
 
 def is_classification(metadata, feature):
@@ -28,54 +29,51 @@ def preprocess(input_file):
     features = metadata.names()
 
     df = pd.DataFrame(df)
-    return df, features, metadata
+    y = df['class']
+    y = y.apply(lambda x: 0 if (x == metadata['class'][1][0]) else 1)
+    X = df.drop('class', axis=1)
+
+    return X, y.values, len(X), features, metadata
+
+
+def encode_and_scale(train_X, test_X):
+    complete_df = pd.concat([train_X, test_X])
+    encoded_df = one_hot_encoding(complete_df, metadata, features)
+
+    train_X = encoded_df[:training_data_size]
+    test_X = encoded_df[training_data_size:len(encoded_df)]
+
+    return preprocessing.scale(train_X.values), preprocessing.scale(test_X.values)
+
+
+def initialize_weights(input_units, hidden_units):
+    Theta1 = np.random.uniform(-0.01, 0.01, (hidden_units, input_units + 1))
+    Theta2 = np.random.uniform(-0.01, 0.01, (1, hidden_units + 1))
+    return Theta1, Theta2
 
 
 if __name__ == '__main__':
     start_time = time.time()
 
-    df, features, metadata = preprocess(sys.argv[1])
-    test_df, _, _ = preprocess(sys.argv[2])
+    train_X, train_y, training_data_size, features, metadata = preprocess(sys.argv[1])
+    test_X, test_y, test_data_size, _, _ = preprocess(sys.argv[2])
+    learning_rate = float(sys.argv[3])
+    hidden_units = int(sys.argv[4])
+    epoch = int(sys.argv[5])
 
-    train_y = df['class']
-    train_y = train_y.apply(lambda x: 0 if (x == 'negative') else 1)
-    df = df.drop('class', axis=1)
+    train_X, test_X = encode_and_scale(train_X, test_X)
 
-    test_y = test_df['class']
-    test_y = test_y.apply(lambda x: 0 if (x == 'negative') else 1)
-    test_df = test_df.drop('class', axis=1)
+    input_units = train_X.shape[1]
+    Theta1, Theta2 = initialize_weights(input_units, hidden_units)
 
-    training_data_size = len(df)
-    test_data_size = len(test_df)
+    train_X, train_y = shuffle(train_X, train_y)
+    for x in xrange(epoch):
+        for index in xrange(training_data_size):
+            [J, Theta1_grad, Theta2_grad] = nnCostFunction(Theta1, Theta2, train_X[index:index + 1], train_y[index])
+            Theta1 -= (learning_rate * Theta1_grad)
+            Theta2 -= (learning_rate * Theta2_grad)
 
-    complete_df = pd.concat([df, test_df])
-    encoded_df = one_hot_encoding(complete_df, metadata, features)
+        print("Epoch {0} - Cross Entropy Error: {1}".format(x, J))
 
-    train_df = encoded_df[:training_data_size]
-    test_df = encoded_df[training_data_size:len(encoded_df)]
-
-    input_units = train_df.shape[1]
-    hidden_units = 4
-
-    Theta1 = np.random.rand(hidden_units, input_units + 1)
-    Theta2 = np.random.rand(1, hidden_units + 1)
-
-    min_max_scaler = preprocessing.MinMaxScaler()
-    train_df = min_max_scaler.fit_transform(train_df.values)
-
-    min_max_scaler = preprocessing.MinMaxScaler()
-    test_df = min_max_scaler.fit_transform(test_df.values)
-
-
-    J = 0
-    for x in xrange(100000):
-        new_train_df = train_df
-        # print("Error Before =" + str(J))
-        [J, Theta1_grad, Theta2_grad] = nnCostFunction(Theta1, Theta2, 1, new_train_df, train_y.values)
-        Theta1 -= Theta1_grad
-        Theta2 -= Theta2_grad
-        print("Error After =" + str(J))
-        # print(str(predict(Theta1, Theta2, train_df)))
-
-    print(accuracy_score(predict(Theta1, Theta2, test_df), test_y.values))
+    print(accuracy_score(predict(Theta1, Theta2, test_X), test_y))
     print("Hello")

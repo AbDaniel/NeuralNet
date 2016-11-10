@@ -1,5 +1,4 @@
 import numpy as np
-from sklearn import preprocessing
 
 from n_net.sigmoid import sigmoid
 
@@ -11,11 +10,10 @@ def vectorize_y(y, num_labels):
     return b
 
 
-def nnCostFunction(Theta1, Theta2, num_labels, X, y):
+def nnCostFunction(Theta1, Theta2, X, y):
     m = X.shape[0]
     X = np.hstack((np.ones((m, 1)), X))
 
-    J = 0
     Theta1_grad = np.zeros(Theta1.shape)
     Theta2_grad = np.zeros(Theta2.shape)
 
