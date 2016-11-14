@@ -12,19 +12,28 @@ from n_net.sigmoid import sigmoid
 import numpy as np
 
 
-def predict(Theta1, Theta2, X):
+def predict(Theta, X, input_bias, hidden_bias):
+    if len(Theta) == 1:
+        Theta1 = Theta[0]
+        Theta2 = None
+    else:
+        Theta1 = Theta[0]
+        Theta2 = Theta[1]
+
     m = X.shape[0]
-    X = np.hstack((np.ones((m, 1)), X))
+    X = np.hstack((np.repeat(input_bias, m).reshape(m, 1), X))
 
     z2 = np.dot(X, Theta1.transpose())
     a2 = sigmoid(z2)
 
-    a2 = np.hstack((np.ones((m, 1)), a2))
+    if Theta2 is None:
+        a3 = a2
+    else:
+        a2 = np.hstack((np.repeat(hidden_bias, m).reshape(m, 1), a2))
+        z3 = np.dot(a2, Theta2.transpose())
+        a3 = sigmoid(z3).transpose()[0]
 
-    z3 = np.dot(a2, Theta2.transpose())
-    a3 = sigmoid(z3).transpose()[0]
-
-    threshold = np.vectorize(lambda x: 1 if(x > 0.5) else 0)
+    threshold = np.vectorize(lambda x: 1 if (x > 0.5) else 0)
 
     return a3, threshold(a3)
 
