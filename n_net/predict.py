@@ -27,7 +27,7 @@ def predict(Theta, X, input_bias, hidden_bias):
     a2 = sigmoid(z2)
 
     if Theta2 is None:
-        a3 = a2
+        a3 = a2.flatten()
     else:
         a2 = np.hstack((np.repeat(hidden_bias, m).reshape(m, 1), a2))
         z3 = np.dot(a2, Theta2.transpose())
